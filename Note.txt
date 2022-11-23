@@ -1,0 +1,139 @@
+Why Istio
+- Canary Release, Dark Releases
+- Tracing, Monitoring
+- Gateway Webapp experiment
+- Fault Injection to test new version service
+- Circuit Breaking code-embedded in every microservices?
+
+* Warmup
+kubectl get po -n istio-system
+echo YWRtaW4= | base64 -d
+kubectl describe ns default
+kubectl label namespace default istio-injection=enabled
+kubectl get ns default -o yaml
+kubectl delete po --all
+watch kubectl get ns default -o yaml
+http://localhost:31000/kiali/console/overview?duration=60&refresh=15000
+http://localhost:31001/jaeger/search
+
+envoyproxy.io istio
+
+1 Telemetry
+minikube start --memory 4096
+kubectl get nodes -o wide
+kubectl describe node docker-desktop
+
+Jagea opentracing.io
+
+2 Traffic Solution
+Canary Release
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staff-service-risky-version
+spec:
+  selector:
+    matchLabels:
+      app: staff-service
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: staff-service
+        version: risky
+http://localhost:31000/kiali/console/graph/namespaces?namespaces=default&graphType=versionedApp&edges=responseTime&unusedNodes=false&operationNodes=false&injectServiceNodes=true&duration=300&refresh=15000&layout=dagre
+while true; do curl http://localhost:30080/api/vehicles/driver/City%20Truck; echo; sleep 0.5; done
+Istio Control Plane
+    kubectl get virtualservices
+    kubectl get vs
+    kubectl get vs fleetman-staff-service
+    kubectl get vs fleetman-staff-service -o yaml
+    kubectl get destinationrules
+    kubectl get dr
+    VS use as Canary to test new version of a part of software. Routing Rules
+    fleetman-staff-service.default.svc.cluster.local:
+        pod-ip-address.my-namespace.pod.cluster-domain.example.
+        For example, if a Pod in the default namespace has the IP address 172.17.0.3, and the domain name for your cluster is cluster.local, then the Pod has a DNS name:
+        172-17-0-3.default.pod.cluster.local
+2.7. while true; do curl --header "x-myval: 192" http://localhost:30080/api/vehicles/driver/City%20Truck; echo; sleep 0.5; done
+Hashing Rule:
+    You do some heavy processing for a user, cache in pod's memory.
+
+3. Gateway
+while true; do curl -s http://localhost:30080 | grep title; sleep 0.5; done
+kubectl get svc -n istio-system --show-labels
+while true; do curl -s http://experimental.fleetman.com/ | grep title; sleep 0.5; done
+http://localhost:31380/vehicle/City%20Truck
+kubectl describe vs fleetman-webapp
+4. Dark Release
+https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj/related
+while true; do curl -H "my-header: canary" -s http://fleetman.com/ | grep title; sleep 0.5; done
+while true; do curl -H "x-my-header: canary" http://fleetman.com/api/vehicles/driver/City%20Truck; echo; sleep 0.5; done
+
+5. Fault Injection
+https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing
+- a pod can fail at any time
+- run out of resources
+- rescheduled
+Suspend Traffic
+    Fail tolerance
+
+6. Circuit Breaking
+    Hystrix
+    Fail fast method
+    https://istio.io/latest/docs/reference/config/networking/destination-rule/
+while true; do curl -H "x-my-header: canary" http://fleetman.com/api/vehicles/driver/City%20Truck; echo; sleep 0.5; done
+
+7. Mutual TLS
+    https://istio.io/v1.4/docs/tasks/security/authentication/auto-mtls/
+    Http/TCP/gRPC between microservices in muli zone, not in 1 machine => upgraded to mTLS
+    Istio-citadel
+    curl  http://fleetman.com:32000/vehicles
+
+8. Customize
+    kubectl get po --all-namespaces
+    istioctl uninstall --purge
+    istioctl install --set profile=demo
+    istioctl install -f tuned_default_setting.yaml --set values.global.jwtPolicy=first-party-jwt
+    istioctl profile dump demo > raw_demo_settings.yaml
+    istioctl profile dump default > raw_default_settings.yaml
+    istioctl manifest generate -f .\tuned_default_settings.yaml > plain_kube.yaml --set values.global.jwtPolicy=first-party-jwt
+    62: hpaSpec horizontal auto scaling
+        -> replicaCount: 3
+9. Upgrading
+In Places Upgrades
+    istioctl18 upgrade
+    kubectl delete po vehicle-telemetry0xxx (auto create with 1-8)
+    localhost:30083
+Canary Upgrades
+    istioctl17 install --set profile=demo --set revision=1-7
+    istioctl18 install --set profile=demo --set revision=1-8
+    kubectl apply -f 1-label-target-istio-version.yaml (1-8)
+    kubectl delete po vehicle-telemetry0xxx (auto create with 1-8)
+    istioctl17 proxy-status
+    istioctl17 uninstall --revision=1-7
+
+
+	Istio & Service Mesh https://bap.udemy.com/course/istio-hands-on-for-kubernetes/
+
+http://34.28.157.169:31000/kiali/console/services?duration=60&refresh=15000&namespaces=loki
+http://34.28.157.169/vehicle/City%20Truck
+http://34.28.157.169:31001/jaeger/search?end=1667387256047000&limit=20&lookback=1h&maxDuration&minDuration&service=istio-ingressgateway.istio-system&start=1667383656047000
+http://34.28.157.169:31002/explore?orgId=1&left=%5B%22now-7d%22,%22now%22,%22Loki%22,%7B%22expr%22:%22%7Bnamespace%3D%5C%22loki%5C%22%7D%22%7D,%7B%22ui%22:%5Btrue,true,true,%22none%22%5D%7D%5D
+
+http://34.28.157.169:2020/api/v1/metrics/prometheus
+http://34.28.157.169:3100/api/prom/label
+
+===================== Google Microservice ===========================
+https://medium.com/swlh/getting-up-and-running-with-grafana-loki-e8d841c7182f
+https://github.com/GoogleCloudPlatform/microservices-demo
+
+Loki https://grafana.com/docs/loki/latest/logql/
+https://docs.fluentbit.io/manual/pipeline/outputs/loki
+{job="fluent-bit"}
+{namespace="demo"}
+{app="currencyservice"}
+{namespace="loki"}
+{container="istio-proxy", namespace="demo"}
+
+Tempo prometheus
